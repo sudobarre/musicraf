@@ -16,7 +16,7 @@ module.exports = {
         }
         const user = await User.findOne({userId: id});
         if(user.playlists.length === 0){
-            return message.reply(`You don't have any playlist saved yet!\nTry "-rafi createp (public/private) (title) (songURL)" to create a playlist!\nFor more information, do "-rafi help".`);
+            return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (public/private) (title) (songURL)" to create a playlist!\nFor more information, do "-rafi help".`);
         }
         const command = client.commands.get('play');
         const song = ['https://www.youtube.com/watch?v=r6-cbMQALcE']; //15 mins of silence lol
@@ -30,7 +30,7 @@ module.exports = {
             .addComponents(
                 new MessageSelectMenu() 
                 .setCustomId('choose-song')
-                .setPlaceholder('Choose a playlist to hear from.')
+                .setPlaceholder('Choose a playlist.')
                 .addOptions([await Promise.all(current.map(async (playlist, index) => ({
                     label:`${current[index].title}`,
                     value: `${[index, id]}`,
@@ -84,62 +84,4 @@ module.exports = {
     }
     },
 }; 
-            /*
-
-        const row = new MessageActionRow() //ActionRowBuilder()?
-        .addComponents(
-            new MessageSelectMenu() //SelectMenuBuilder()?
-            .setCustomId('choose-song')
-            .setPlaceholder('Choose a playlist to hear from.')
-//            .setDisabled(true)
-            .addOptions([
-                {
-                    label: 'Sleeping',
-                    description: 'Plays songs to sleep to.',
-                    value: 'Sweet dreams!',
-                    emoji: '🛌',
-                },
-                {
-                    label: 'Studying',
-                    description: 'Plays ambient music for studying.',
-                    value: 'Goodluck!',
-                    emoji: '📚',
-                },
-                {
-                    label: 'Sad',
-                    description: 'Songs for when you are in a sad mood.',
-                    value: 'Hope you feel better :)',
-                    emoji: '😢',
-                },
-                {
-                    label: 'Daddy Chill',
-                    description: 'For when you just want to chill.',
-                    value: 'Enjoy!',
-                    emoji: '🧔‍♀️',
-                }
-            ]),
-        );
-        const embed = new MessageEmbed().setTitle('Hi! What type of music do you wanna listen to?');
-
-        const filter = (interaction) => 
-            interaction.isSelectMenu() && 
-            interaction.user.id === message.author.id;
-
-        const collector = message.channel.createMessageComponentCollector({ filter: ({user}) => user.id === message.author.id, max: 1});
-
-        collector.on('collect', async(collected) =>{
-            const value = collected.values[0];
-
-           
-            collected.deferUpdate();
-
-            collected.channel.send({
-                content: value,
-                ephemeral: true,
-            });
-            
-        });
-       message.channel.send({embeds: [embed], components: [row]});
-
-    },
-}; */
+          

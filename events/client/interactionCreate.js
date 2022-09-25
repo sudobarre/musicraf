@@ -30,6 +30,8 @@ async function playSongs(songs, interaction, client, Discord){
 module.exports = (client, Discord, interaction) => {
   async function handleCommand() {
     if (interaction.isCommand()) {
+      return;
+      /*
       const slashcmd = client.slashcommands.get(interaction.commandName);
       if (!slashcmd) return;
 
@@ -45,7 +47,7 @@ module.exports = (client, Discord, interaction) => {
           content: "There was an error while executing this command.",
           ephemeral: true,
         });
-      }
+      } */
     } else if (interaction.isSelectMenu()){
         let user;
         let idx;
@@ -75,10 +77,7 @@ module.exports = (client, Discord, interaction) => {
           break;
         default:
           break;
-      }
-      
-      //playSongs(songs, interaction, client, Discord)
-      
+      }      
     }
   }
   handleCommand();

@@ -21,7 +21,7 @@ module.exports = {
             const user = await User.findOne({userId: id});
             const plists = user.playlists;
             if(plists.length === 0){
-                return message.reply(`You don't have any playlist saved yet!\nTry "-rafi createp (title) (songURL) (public/private)" to create a playlist!\nFor more information, do "-rafi help".`);
+                return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (title) (songURL) (public/private)" to create a playlist!\nFor more information, do "-raf help".`);
             }
             // Put the following code wherever you want to send the embed pages:
 

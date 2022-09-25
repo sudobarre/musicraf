@@ -16,7 +16,7 @@ module.exports = {
             const user = await User.findOne({userId: mention.id});
             const quotesArr = user.quotes;
             if(quotesArr.length === 0){
-                return message.channel.send("Member has no quotes yet! Do -rafi addquote (memberTag) (quote) to start adding quotes!");
+                return message.channel.send("Member has no quotes yet! Do -raf addquote (memberTag) (quote) to start adding quotes!");
             }
             const randomIndex = Math.floor(Math.random() * quotesArr.length);
             return message.channel.send(quotesArr[randomIndex]);

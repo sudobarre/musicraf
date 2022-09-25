@@ -35,10 +35,10 @@ module.exports = {
             const id = message.author.id;
             const user = await User.findOne({userId: id});
             if(user.playlists.length === 0){
-                return message.reply(`You don't have any playlist saved yet!\nTry "-rafi createp (title) (songURL) (public/private)" to create a playlist!\nFor more information, do "-rafi help".`);
+                return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (title) (songURL) (public/private)" to create a playlist!\nFor more information, do "-rafi help".`);
             }
             
-            if((!Number.isInteger(index)) || index > user.playlists.length || index <= 0) return message.reply("Invalid index!\nTry '-rafi listp' to see all your available playlists!");
+            if((!Number.isInteger(index)) || index > user.playlists.length || index <= 0) return message.reply("Invalid index!\nTry '-raf listp' to see all your available playlists!");
             index--;
             const plist = user.playlists[index];
             plist.songs.push([song]);
