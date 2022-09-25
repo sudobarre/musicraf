@@ -4,6 +4,7 @@ const User = require("../../schema/userSchema");
 module.exports = (client, Discord, message) => {
   const prefix = process.env.PREFIX;
   if (message.author.bot) return;
+  if(!message.content.startsWith(prefix)) return;
 
   const args = message.content.slice(prefix.length).split(/ +/);
   const cmd = args.shift().toLowerCase();
