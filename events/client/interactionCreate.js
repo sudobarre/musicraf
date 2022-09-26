@@ -52,6 +52,7 @@ module.exports = (client, Discord, interaction) => {
         let user;
         let idx;
         let id;
+        let plist;
       switch (interaction.customId){
         case "delete-playlist": //interaction.values is an arr of 1 elem for the index to delete
           id = interaction.user.id;
@@ -63,17 +64,25 @@ module.exports = (client, Discord, interaction) => {
           user.playlists = plists;
           user.save();
         break;
-        case "choose-song": //interaction.values is an arr of 1 element consisting of [index, id]. Ugly af.
+        case "choose-playlist": //interaction.values is an arr of 1 element consisting of [index, id]. Ugly af.
           id = parseInt(interaction.values[0].substring(2)); //id
           user = await User.findOne({userId:id});
           idx = parseInt(interaction.values[0]); //index
-          const plist = user.playlists[idx];
+          plist = user.playlists[idx];
           //check for visibility here
           if(!(id != interaction.user.id && !plist.visibility)){
             playSongs(plist.songs, interaction, client, Discord);
           } else {
             interaction.deleteReply();
           }
+          break;
+        case "add-song": //interaction.values is an arr of 1 element consisting of [index, id]. Ugly af.
+          let song =interaction.values[0].substring(2); //song
+          user = await User.findOne({userId:interaction.user.id});
+          idx = parseInt(interaction.values[0]); //index
+          plist = user.playlists[idx];
+          plist.songs.push([song]);
+          user.save();
           break;
         default:
           break;

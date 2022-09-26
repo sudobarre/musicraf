@@ -2,6 +2,7 @@
 //module.exports = (client) =>{
 //	console.log(generateDependencyReport());
 const User = require("../../schema/userSchema");
+const Global= require("../../schema/globalSchema");
 //const fetch = require('node-fetch');
 
 
@@ -15,6 +16,7 @@ module.exports = (client) =>{
 	
 	
 };
+
 
 /*
 async function removePlaylists(client){

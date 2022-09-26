@@ -1,6 +1,7 @@
 const { Client, Message, MessageEmbed } = require('discord.js');
 const { MessageActionRow, MessageSelectMenu } = require('discord.js');
 const User = require("../schema/userSchema");
+const Global = require("../schema/globalSchema");
 
 
 module.exports = {
@@ -29,7 +30,7 @@ module.exports = {
             const row = new MessageActionRow()
             .addComponents(
                 new MessageSelectMenu() 
-                .setCustomId('choose-song')
+                .setCustomId('choose-playlist')
                 .setPlaceholder('Choose a playlist.')
                 .addOptions([await Promise.all(current.map(async (playlist, index) => ({
                     label:`${current[index].title}`,
@@ -58,6 +59,23 @@ module.exports = {
                 });
             } else {
                 collected.deferUpdate();
+                user.playlists[idx].count++;
+                //update global count if its bigger than the last one idk lol
+
+                //
+                let top = await Global.findOne({id: 0});
+                if(top.mostPlayed.length < 10){
+                    if(!top.mostPlayed.find(playlist => playlist==plist)){
+                        top.mostPlayed.push(plist);
+                    }
+                    //sort here, till it reaches 10 at least.
+                } else {
+                    if(top.mostPlayed[mostPlayed.length-1].count < plist.count){
+                        top.mostPlayed[mostPlayed.length-1] = plist;
+                    }
+                }
+                await top.save();
+                await user.save();
                 collected.channel.send({
                     content: "Enjoy!",
                     ephemeral: true,

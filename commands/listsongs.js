@@ -25,12 +25,14 @@ module.exports = {
                 return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (title) (songURL) (public/private)" to create a playlist!\nFor more information, do "-rafi help".`);
             }
             let index = parseInt(args[0]);
-            if((!Number.isInteger(index)) || index > user.playlists.length || index <= 0) return message.reply("Invalid index!\nTry '-raf listp' to see all your available playlists!");
+            if((!Number.isInteger(index)) || index > user.playlists.length || index <= 0) return message.reply("Invalid index!\nTry '-rafi listp' to see all your available playlists!");
             index--;
             if(id != message.author.id && !user.playlists[index].visibility) return message.reply("The playlist you are trying to see is set to private.");
             const plist = user.playlists[index].songs;
 
-            const embed = new MessageEmbed().setTitle(`From playlist "${user.playlists[index].title}":`);
+            const embed = new MessageEmbed()
+            .setTitle(`From playlist "${user.playlists[index].title}":`)
+            .setFooter(`Played ${user.playlists[index].count} times.`);
             message.channel.send({embeds: [embed]});
             return this.embedSender(client, message, plist); //return embed
         } catch (error) {
@@ -98,8 +100,8 @@ module.exports = {
                     titles.length}`,
                 fields: await Promise.all(
                     current.map(async (playlist, index) => ({
-                    name:`${index+1+start}`,
-                    value: `${await this.details(current, index)}\n ${current[index]}`,
+                    name:`${index+1+start}: ${await this.details(current, index)}`,
+                    value: `${current[index]}`,
                     }))
                 )
                 })

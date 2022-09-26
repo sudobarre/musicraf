@@ -34,7 +34,8 @@ module.exports = {
             const newPlaylist = new Playlist({
                 songs: [[newSong]],
                 title: plistTitle,
-                visibility: v
+                visibility: v,
+                count: 0,
             });
             newPlaylist.save();         
             user.playlists.push(newPlaylist);
