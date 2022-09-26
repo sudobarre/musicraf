@@ -29,7 +29,7 @@ const helpAll = [
                 {name: 'createplaylist(createp, addp) [public/private] [title] [yt-url]', value: 'Creates a playlist with the given title and adds the given song to it. If its set to private, only you will be able to listen to it.' },
                 {name: 'deleteplaylist(deletep, removep)', value: 'Deletes a playlist and all its songs.' },
                 {name: 'listplaylist(listp) [optional: user_tag]', value: 'Lists all of the user playlists. If a tag is given, it lists all of the playlists of that user mentioned.' },
-                {name: 'addsong(adds) [playlist_index] [yt-url]', value: 'Adds a song to the playlist indicated by the index.' },
+                {name: 'addsong(adds) [yt-url]', value: 'Adds a song to a playlist.' },
                 {name: 'listsongs(lists) [playlist_index] [optional: user_tag]', value: 'Lists all songs in the playlist indicated by the index. If a tag is given, it lists all of the songs of that user playlist if its public.' },
                 {name: 'removesong(deletesong) [playlist_index] [song_index] ', value: 'Deletes a song located in the index of the playlist indicated by the index. The indexes are the position indicated on their list.' },
                 {name: 'songs [optional: user_tag]', value: 'Plays one of your playlists. If a tag is given, it plays the mentioned user playlist, if said playlist is set to public. May take some time to load the songs.'},

@@ -81,7 +81,7 @@ module.exports = (client, Discord, interaction) => {
           user = await User.findOne({userId:interaction.user.id});
           idx = parseInt(interaction.values[0]); //index
           plist = user.playlists[idx];
-          plist.songs.push([song]);
+          plist.songs.unshift([song]);
           user.save();
           break;
         default:

@@ -37,7 +37,7 @@ module.exports = {
                     value: `${[index, id]}`,
                     })))]),         
             );
-            const embed = new MessageEmbed().setTitle('Hi! What type of music do you wanna listen to?');
+            const embed = new MessageEmbed().setTitle('Hi! What playlist do you want to listen from?');
 
         const filter = (interaction) => 
             interaction.isSelectMenu() && 
@@ -46,6 +46,7 @@ module.exports = {
         const collector = message.channel.createMessageComponentCollector({ filter: ({user}) => user.id === message.author.id, max: 1});
 
         collector.on('collect', async(collected) =>{
+            
             const value = collected.values[0];
             id = parseInt(collected.values[0].substring(2)); //id
             idx = parseInt(collected.values[0]); //index
@@ -59,35 +60,47 @@ module.exports = {
                 });
             } else {
                 collected.deferUpdate();
-                user.playlists[idx].count++;
                 //update global count if its bigger than the last one idk lol
 
                 //
-                let top = await Global.findOne({id: 0});
-                if(top.mostPlayed.length < 10){
-                    if(!top.mostPlayed.find(playlist => playlist==plist)){
-                        top.mostPlayed.push(plist);
-                    }
-                    //sort here, till it reaches 10 at least.
-                } else {
-                    if(top.mostPlayed[mostPlayed.length-1].count < plist.count){
-                        top.mostPlayed[mostPlayed.length-1] = plist;
-                    }
-                }
-                await top.save();
+                user.playlists[idx].count++;
                 await user.save();
+                if(plist.visibility){
+                    let top = await Global.findOne({id: 0});
+                    if(!top.mostPlayed.length) {
+                        top.mostPlayed.push(user.playlists[idx]); 
+                    } else {
+                        if(top.mostPlayed.length < 10){
+                            const size = top.mostPlayed.length;
+                            let flag = true;
+                            for(let i = 0; (i < size) && flag; i++){
+                                if((top.mostPlayed[i].title === user.playlists[idx].title)){ //find() method didnt work
+                                    flag = false;
+                                    top.mostPlayed[i].count++;
+                                }
+                            }
+                            if(flag) top.mostPlayed.push(user.playlists[idx]);
+                            top.mostPlayed.sort(function(a, b){return b.count - a.count}); 
+                        } else {
+                            if(top.mostPlayed[mostPlayed.length-1].count < user.playlists[idx].count){
+                                top.mostPlayed[mostPlayed.length-1] = user.playlists[idx];
+                            }
+                        }
+                        //top.mostPlayed = [];
+                    }
+                    await top.save();
+                }
                 collected.channel.send({
                     content: "Enjoy!",
                     ephemeral: true,
                 });
             }
             
-            
         });
        message.channel.send({embeds: [embed], components: [row]});
 
        function getUserFromMention(mention) {
-        if (!mention) return;
+        if (!mention) return 0;
     
         if (mention.startsWith('<@') && mention.endsWith('>')) {
             mention = mention.slice(2, -1);

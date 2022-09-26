@@ -36,6 +36,7 @@ module.exports = {
                 title: plistTitle,
                 visibility: v,
                 count: 0,
+                owner: user,
             });
             newPlaylist.save();         
             user.playlists.push(newPlaylist);

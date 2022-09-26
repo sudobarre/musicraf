@@ -11,32 +11,15 @@ module.exports = {
         try {
           const {author, channel} = message;
             const top = await Global.findOne({id: 0});
-            //change it to array of playlist titles
-              let titles = [];
-              for(let i = 0; i < top.mostPlayed.length; i++){
-                titles.push(top.mostPlayed[i]);
-              }
+                      
               const generateEmbed = async start => {
-                let current = [];
-                    if(titles.length <= 10){
-                        current = titles;
-                    } else {
-                      for(let i = 0; i < 10; i++){
-                        if(i === titles.length-1){ //shitty way in case its not multiple of ten, could use modulo later idk too braindead rn lol.
-                            current.push(top.mostPlayed[i]);
-                            i = 10;
-                        } else {
-                          current.push(top.mostPlayed[i]);
-                        }
-                      }
-                    }
-            
+                let current = top.mostPlayed;
                 // You can of course customise this embed however you want
                 return new MessageEmbed({   
                 title: `Showing most played playlists:`,
                 fields: await Promise.all(
                     current.map(async (playlist, index) => ({
-                    name:`${index+1}: ${current[index].title}`,
+                    name:`${index+1}: ${current[index].title} `,//by ${current[index].owner.ownerId}`, //add the tag here so others can play from it.
                     value: `Played ${current[index].count} times.`,
                     }))
                 )

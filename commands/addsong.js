@@ -4,7 +4,6 @@ const User = require("../schema/userSchema");
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
 
-
 module.exports = {
 	name :'addsong',
     aliases: ['adds', 'addsongs'],
@@ -13,15 +12,13 @@ module.exports = {
 	async execute(client, message, cmd, args) {
         //format: -rafi addsong (url)
         //                        0          
+        if(args.length === 0) return message.reply("You need to send a youtube link or the name of the song you want to add!");
         const video_finder = async (query) =>{
             const videoResult = await ytSearch(query);
-            return (videoResult.videos.length > 1) ? videoResult.videos[0] : null; //gets the first result in the search of that keyword
-
+            return (videoResult.videos.length > 1) ? videoResult.videos[0] : null;
         };
-        
         const video = await video_finder(args.join(' '));
         let song;
-        //console.log(video);
         if (video){
             song = video.url
         } else {
@@ -38,13 +35,11 @@ module.exports = {
                 return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (title) (songURL) (public/private)" to create a playlist!\nFor more information, do "-rafi help".`);
             }
             
-            //could send a selectmenu here to choose the playlist to add it to.
+            //selectmenu here to choose the playlist to add it to.
             let current = user.playlists;
-            //current would be my playlists
-    
-                const row = new MessageActionRow()
-                .addComponents(
-                    new MessageSelectMenu() 
+            const row = new MessageActionRow()
+            .addComponents(
+                new MessageSelectMenu() 
                     .setCustomId('add-song')
                     .setPlaceholder('Playlist')
                     .addOptions([await Promise.all(current.map(async (playlist, index) => ({
@@ -52,7 +47,7 @@ module.exports = {
                         value: `${[index, song]}`,
                         })))]),         
                 );
-                const embed = new MessageEmbed().setTitle('Choose a playlist to add the song to.');
+            const embed = new MessageEmbed().setTitle('Choose a playlist to add the song to.');
     
             const filter = (interaction) => 
                 interaction.isSelectMenu() && 
@@ -64,10 +59,10 @@ module.exports = {
                 collected.channel.send({
                     content: "Song added!",
                      ephemeral: true,
-                });  
+                });
+                return;  
             });
            message.channel.send({embeds: [embed], components: [row]});
-
         } catch (error) {
             console.error(error);
         }
