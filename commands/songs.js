@@ -65,7 +65,7 @@ module.exports = {
                 //
                 user.playlists[idx].count++;
                 await user.save();
-                if(plist.visibility){
+                if(plist.visibility){ //to update the most played playlists.
                     let top = await Global.findOne({id: 0});
                     if(!top.mostPlayed.length) {
                         top.mostPlayed.push(user.playlists[idx]); 

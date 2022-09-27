@@ -9,10 +9,14 @@ const Global= require("../../schema/globalSchema");
 //const { joinVoiceChannel } = require('@discordjs/voice');
 module.exports = (client) =>{
 	console.log(`Ready! Logged in as ${client.user.tag}`);
+	
 	//removeUser(client);
 	//removePlaylists(client);
 	//addPlaylist(client);
 	//addUser(client);
+	
+	//const p = `{"url":"https://youtube.com/watch?v=IUMTaAQ43lY","songTitle":"Tom Misch: NPR Music Tiny Desk Concer"}`;
+	//console.log(p.length);
 	
 	
 };
@@ -21,9 +25,10 @@ module.exports = (client) =>{
 /*
 async function removePlaylists(client){
 	try {
-		const user = await User.findOne({userId: process.env.rafi});
-		user.playlists = [];
-		await user.save();
+		const user = await User.findOne({userId: process.env.rafiAlt});
+		console.log(user);
+		//user.playlists = [];
+		//await user.save();
 		return console.log("deleted all playlists.");
 		
 	} catch (err) {

@@ -6,6 +6,7 @@ const { Client, Message, MessageEmbed, GatewayIntentBits } = require('discord.js
 const { MessageActionRow, MessageSelectMenu } = require('discord.js');
 const { query } = require('express');
 const { Player } = require('discord-player');
+const User = require("../schema/userSchema");
 
 let connection;
 const queue = new Map();
@@ -34,62 +35,41 @@ module.exports = {
     name: 'play',
     aliases: ['p', 'skip', 'stop', 'queue', 'pause', 'unpause'], //add shuffle, play alias for interaction play
     description: 'plays music',
+    //                    interac       index
     async execute(client, message, cmd, args, Discord, flagint){
-        if(!(flagint)){ //if its an odd number it will skip this. Used with interactions
+        if(!flagint){ //Used with interactions
             var voice_channel = message.member.voice.channel;
             if (!voice_channel) return message.channel.send('You need to be in a voice channel to execute this command.');
             const permissions = voice_channel.permissionsFor(message.client.user);
             if (!permissions.has('CONNECT')) return message.channel.send('You dont have permission to do that');
             if (!permissions.has('SPEAK')) return message.channel.send('You dont have permission to do that');
         }
-
+        //                                                  true                        false
         const server_queue = (!flagint) ? queue.get(message.guild.id) : queue.get(message.guildId); //AFTER INTERACTION
 
         //if bot is already playing then the silence shouldnt queue up.
-
-        if (cmd === 'play' || cmd === 'p') {
-            if (!args.length) return message.reply('You need to send the title or a url as an argument!');
+        if (cmd === 'play' || cmd === 'p'){
+            if (!flagint){
+                if(!args.length) return message.reply('You need to send the title or a url as an argument!');
+                }
             let song = {};
-
-            if(flagint){ //used to treat the args as array of arrays including songs instead of a 1-D array. Need to clear up queue if called when it already has stuff playing or nah idk lol
-                const n = server_queue.songs.length;
+            if(flagint){ 
+                const n = server_queue.songs.length;                
                 for(let i = 0; i < n-1; i++){
                     server_queue.songs.shift();
                 }
-                shuffleArray(args);
+                
+                const user = await User.findOne({userId:args.id});
+                const plist = user.playlists[args.index].songs;
+                shuffleArray(plist);
 
                 //if there is already a queue with >1 songs then free up the queue and push the new selection.
 
-                for(let i = 0; i < args.length; i++){
-                    if (ytdl.validateURL(args[i][0])){ //if its a link then the arg[i] is just one element in size.
-                        const song_info = await ytdl.getInfo(args[i][0]);
-                        song = { title: song_info.videoDetails.title, url: song_info.videoDetails.video_url };
-                        server_queue.songs.push(song);
 
-                    } else {
-                    //If the video is not a URL then use keywords to find that video.
-                    //if its a dark academia song then push a random video from the songs searched.
-                        var video_finder = async (query) =>{ //query may be wrong here idk
-                            const videoResult = await ytSearch(query);
-                            //could just return all the videos but i have to make sure to pass on the artist name instead of a song.
-                            if(query !== "dark academia"){
-                                return (videoResult.videos.length > 1) ? videoResult.videos[0] : null; //returns a random video from the searched keyword
-                            }else{
-                                return (videoResult.videos.length > 1) ? videoResult.videos[Math.floor(Math.random() * (videoResult.videos.length/2))] : null;
-                            }
-                        };
-                       
-                        const video = await video_finder(args[i].join(' '));
-                        //console.log(video);
-                        if (video){
-                            song = { title: video.title, url: video.url };
-                            server_queue.songs.push(song);
-                        } else {
-                            message.reply('Error finding your video.');
-                            //return;
-                        }
-                    }
-                }
+                for(let i = 0; i < plist.length; i++){
+                    song = { title: plist[i][0].songTitle, url: plist[i][0].url };
+                    server_queue.songs.push(song);
+                } 
             }else{
 
                 if (ytdl.validateURL(args[0])){
@@ -149,18 +129,12 @@ module.exports = {
         }
         else if (cmd === 'skip'){skip_song(message, server_queue, flagint);}
         else if (cmd === 'stop'){stop_song(message, server_queue);}
-        else if (cmd === 'pause'){pause_song(message, server_queue);}
-        else if (cmd === 'unpause'){pause_song(message, server_queue);}
         else if (cmd === 'queue'){print_queue(message, server_queue);}
 
     },    
 
 };
 
-const pause_song = (message, server_queue) => {
-    if(!message.member.voice.channel) return message.reply('You need to be in a channel to execute this command.');
-    return video_player(message.guildId, server_queue.songs[0], 1, 1);
-   };
 
 
 const video_player = async (guild, song, flagint, paused) => {
@@ -194,12 +168,12 @@ const video_player = async (guild, song, flagint, paused) => {
         song_queue.songs.shift();
         video_player(guild, song_queue.songs[0], flagint); //is it flagint?
     });
-    if(song.url !== 'https://www.youtube.com/watch?v=r6-cbMQALcE' && song.url !== 'https://www.youtube.com/watch?v=A3ytTKZf344'){ //if its not silence or sexy music
+    if(song.url !== 'https://www.youtube.com/watch?v=r6-cbMQALcE'){ //if its not silence or sexy music
         await song_queue.text_channel.send(`Now Playing: **${song.title}\n**${song.url}`);  
     }
-    player.on('disconnect', () => {
+    connection.on('disconnect', () => {
         queue.delete(guild.id);
-        song_queue.text_channel.send(`A bitch disconnected me, cleared songs queue.`); 
+        song_queue.text_channel.send(`I got disconnected, cleared songs queue.`); 
     });
 
 };

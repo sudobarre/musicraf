@@ -11,17 +11,20 @@ module.exports = {
         //format: -rafi createp (visib) (title) (song url)
         //                         0       1           2          
         //function to validate regex, yt validate from ytdl
+        
         if(!(args[0] === 'public' || args[0] === 'private')) return message.reply("You need to specify the playlist visibility!\nFor more information, do '-raf help'.");
         if(!ytdl.validateURL(args[args.length-1])) return message.reply('Invalid song! Song needs to be a YouTube URL.');
+        
         try {
             const id = message.author.id;
             function visib(arg){
                 return  arg === "public" ? true : false;
             };
 
-            const newSong = args[args.length-1];
             const v = visib(args[0]);
             args.shift(); //byebye visibility
+            const song_info = await ytdl.getInfo(args[args.length-1]);
+            const song = { songTitle: song_info.videoDetails.title, url: song_info.videoDetails.video_url };
             args.pop(); //byebye yt link
             
             const plistTitle = args.join(' ').toString();
@@ -32,7 +35,7 @@ module.exports = {
                 if(user.playlists[i].title === plistTitle) return message.reply("A playlist with that title already exists!");
             }
             const newPlaylist = new Playlist({
-                songs: [[newSong]],
+                songs: [[song]],
                 title: plistTitle,
                 visibility: v,
                 count: 0,

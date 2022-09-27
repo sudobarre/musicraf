@@ -1,10 +1,10 @@
 const User = require("../../schema/userSchema");
 
-async function playSongs(songs, interaction, client, Discord){
+async function playSongs(index, interaction, client, Discord){//index = {id, index}
   try {
-    const commandPlay = client.commands.get("play");
+    const commandPlay = client.commands.get('play');
     commandPlay
-      .execute(client, interaction, "play", songs, Discord, 1)
+      .execute(client, interaction, 'play', index, Discord, 1) //queue up all the songs then once its done skip the silence.
       .then(
         () => {
           return commandPlay.execute(
@@ -31,23 +31,6 @@ module.exports = (client, Discord, interaction) => {
   async function handleCommand() {
     if (interaction.isCommand()) {
       return;
-      /*
-      const slashcmd = client.slashcommands.get(interaction.commandName);
-      if (!slashcmd) return;
-
-      try {
-        await interaction.deferReply();
-        await slashcmd.run({
-          client,
-          interaction,
-        });
-      } catch (error) {
-        console.error(error);
-        await interaction.reply({
-          content: "There was an error while executing this command.",
-          ephemeral: true,
-        });
-      } */
     } else if (interaction.isSelectMenu()){
         let user;
         let idx;
@@ -69,15 +52,19 @@ module.exports = (client, Discord, interaction) => {
           user = await User.findOne({userId:id});
           idx = parseInt(interaction.values[0]); //index
           plist = user.playlists[idx];
+          const index = {
+            id: id,
+            index: idx,
+          }
           //check for visibility here
           if(!(id != interaction.user.id && !plist.visibility)){
-            playSongs(plist.songs, interaction, client, Discord);
+            playSongs(index, interaction, client, Discord);
           } else {
             interaction.deleteReply();
           }
           break;
         case "add-song": //interaction.values is an arr of 1 element consisting of [index, id]. Ugly af.
-          let song =interaction.values[0].substring(2); //song
+          let song = JSON.parse(interaction.values[0].substring(2)); //song
           user = await User.findOne({userId:interaction.user.id});
           idx = parseInt(interaction.values[0]); //index
           plist = user.playlists[idx];

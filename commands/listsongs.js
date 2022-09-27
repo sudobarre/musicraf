@@ -100,8 +100,8 @@ module.exports = {
                     titles.length}`,
                 fields: await Promise.all(
                     current.map(async (playlist, index) => ({
-                    name:`${index+1+start}: ${await this.details(current, index)}`,
-                    value: `${current[index]}`,
+                    name:`${index+1+start}: ${current[index][0].songTitle}`,
+                    value: `${current[index][0].url}`,
                     }))
                 )
                 })
@@ -148,10 +148,6 @@ module.exports = {
             console.error(error);
         }
     },
-    async details(current, i){
-        let temp = await ytdl.getInfo(current[i].toString());
-        return temp.videoDetails.title;
-    } 
 };
 
 

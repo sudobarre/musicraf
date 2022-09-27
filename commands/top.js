@@ -12,7 +12,7 @@ module.exports = {
           const {author, channel} = message;
             const top = await Global.findOne({id: 0});
                       
-              const generateEmbed = async start => {
+              const generateEmbed = async ()=> {
                 let current = top.mostPlayed;
                 // You can of course customise this embed however you want
                 return new MessageEmbed({   
@@ -26,9 +26,8 @@ module.exports = {
                 })
             }
             
-            // Send the embed with the first 10 playlist
             const embedMessage = await channel.send({
-                embeds: [await generateEmbed(0)],
+                embeds: [await generateEmbed()],
             })
             return;
 

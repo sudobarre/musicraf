@@ -2,7 +2,10 @@ const { Schema, model } = require("mongoose");
 const User = require("./userSchema.js");
 
 const PlaylistSchema = new Schema({
-        songs: [[String]], //array of arrays of one song each, made to work with songs cmd.
+        songs: [[{
+            songTitle: String,
+            url: String,
+        }]], //array of arrays of one song each, made to work with songs cmd.
         required: false,
         default: [[]],
         count: {

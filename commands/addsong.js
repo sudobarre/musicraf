@@ -18,14 +18,21 @@ module.exports = {
             return (videoResult.videos.length > 1) ? videoResult.videos[0] : null;
         };
         const video = await video_finder(args.join(' '));
-        let song;
+        let song = new Object();
         if (video){
-            song = video.url
+            song.url = video.url
         } else {
             if(!ytdl.validateURL(args[0])) {
-                return message.reply('Invalid song! Song needs to be a YouTube URL.');
+                return message.reply('Invalid link! Needs to be a YouTube URL.');
             } else {
-                song = args[0];
+                song.url = args[0];
+            }
+        }
+        const song_info = await ytdl.getInfo(song.url);
+        song.songTitle = song_info.videoDetails.title;
+        if(song.url.length + song.songTitle.length >= 72){
+            while(72 - (song.url.length + song.songTitle.length) <= 0){
+                song.songTitle = song.songTitle.slice(0, -1); 
             }
         }
         try {
@@ -44,7 +51,7 @@ module.exports = {
                     .setPlaceholder('Playlist')
                     .addOptions([await Promise.all(current.map(async (playlist, index) => ({
                         label:`${current[index].title}`,
-                        value: `${[index, song]}`,
+                        value: `${[index, JSON.stringify(song)]}`, //CHECK INTERACTIONCREATE
                         })))]),         
                 );
             const embed = new MessageEmbed().setTitle('Choose a playlist to add the song to.');

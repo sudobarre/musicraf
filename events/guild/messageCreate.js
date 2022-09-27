@@ -8,11 +8,13 @@ module.exports = (client, Discord, message) => {
 
   const args = message.content.slice(prefix.length).split(/ +/);
   const cmd = args.shift().toLowerCase();
+  if(cmd === 'bazinga') return message.reply('*laugh track*');
   const command =
     client.commands.get(cmd) ||
     client.commands.find((a) => a.aliases && a.aliases.includes(cmd));
   try {
     const id = message.author.id;
+    //Before bottlenecking with the db here check if the user is in the client's cache. If so, then i think it's already stored in the db.
     checkUser(id);
     const flagint = 0; //ugly way to work with interactions in some commands.
     command.execute(client, message, cmd, args, Discord, flagint);
