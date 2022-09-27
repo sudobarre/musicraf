@@ -16,7 +16,7 @@ module.exports = {
                 let current = top.mostPlayed;
                 // You can of course customise this embed however you want
                 return new MessageEmbed({   
-                title: `Showing most played playlists:`,
+                title: `Showing top ${top.mostPlayed.length} most played playlists:`,
                 fields: await Promise.all(
                     current.map(async (playlist, index) => ({
                     name:`${index+1}: ${current[index].title} `,//by ${current[index].owner.ownerId}`, //add the tag here so others can play from it.

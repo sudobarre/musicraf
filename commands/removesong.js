@@ -12,7 +12,7 @@ module.exports = {
             const id = message.author.id;
             const user = await User.findOne({userId: id});
             if(user.playlists.length === 0){
-                return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (title) (songURL) (public/private)" to create a playlist!\nFor more information, do "-raf help".`);
+                return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (public/private) (title)" to create a playlist!\nFor more information, do "-raf help".`);
             }
             let playlistIndex = parseInt(args[0]);
             if((!Number.isInteger(playlistIndex)) || playlistIndex > user.playlists.length || playlistIndex <= 0) return message.reply("Invalid index!\nTry '-raf listp' to see all your available playlists!");

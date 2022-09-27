@@ -15,7 +15,15 @@ module.exports = {
         }else{
             id = message.author.id;
         }
-        const user = await User.findOne({userId: id});
+        let user = await User.findOne({userId: id});
+        if(!user){
+            user = new User({
+                userId: id,
+                playlists: [],
+                quotes: [],
+            });
+            await user.save();
+        }
         if(user.playlists.length === 0){
             return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (public/private) (title) (songURL)" to create a playlist!\nFor more information, do "-rafi help".`);
         }
@@ -47,18 +55,24 @@ module.exports = {
 
         collector.on('collect', async(collected) =>{
             
-            const value = collected.values[0];
             id = parseInt(collected.values[0].substring(2)); //id
             idx = parseInt(collected.values[0]); //index
             const plist = user.playlists[idx];
-            //check for visibility here
-            if(id != message.author.id && !plist.visibility ){
+            if(!plist.songs.length){
                 collected.deferUpdate();
                 collected.channel.send({
-                    content: "This playlist is set to private.",
+                    content: "This playlist has no songs.",
                     ephemeral: true,
                 });
             } else {
+                //if playing from other user
+                if(id != message.author.id && !plist.visibility ){
+                    collected.deferUpdate();
+                    collected.channel.send({
+                        content: "This playlist is set to private.",
+                        ephemeral: true,
+                    });
+                } else {
                 collected.deferUpdate();
                 //update global count if its bigger than the last one idk lol
 
@@ -94,8 +108,8 @@ module.exports = {
                     content: "Enjoy!",
                     ephemeral: true,
                 });
-            }
-            
+                }
+            }    
         });
        message.channel.send({embeds: [embed], components: [row]});
 

@@ -17,8 +17,17 @@ module.exports = (client) =>{
 
 	
 };
+/*
+async function removeUser(client){
+    try {
+		const user = await User.findOneAndRemove({userId: process.env.rafi});
+		return console.log("borrado");
 
-
+		
+    } catch (err) {
+      console.log(err);
+    } 
+	};
 /*
 async function removePlaylists(client){
 	try {

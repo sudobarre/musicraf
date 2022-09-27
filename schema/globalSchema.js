@@ -3,7 +3,7 @@ const { Schema, model } = require("mongoose");
 const playlistSchema = require("./playlistSchema.js").schema;
 
 const globalSchema = new Schema({
-    id: {
+    id: { //i hate this so much
         type: Number,
         default: 0
     },

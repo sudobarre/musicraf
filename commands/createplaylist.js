@@ -8,12 +8,11 @@ module.exports = {
 	description: 'creates a playlist.',
 	once: true,
 	async execute(client, message, cmd, args) {
-        //format: -rafi createp (visib) (title) (song url)
-        //                         0       1           2          
+        //format: -rafi createp (visib) (title)
+        //                         0       1           
         //function to validate regex, yt validate from ytdl
         
         if(!(args[0] === 'public' || args[0] === 'private')) return message.reply("You need to specify the playlist visibility!\nFor more information, do '-raf help'.");
-        if(!ytdl.validateURL(args[args.length-1])) return message.reply('Invalid song! Song needs to be a YouTube URL.');
         
         try {
             const id = message.author.id;
@@ -23,26 +22,29 @@ module.exports = {
 
             const v = visib(args[0]);
             args.shift(); //byebye visibility
-            const song_info = await ytdl.getInfo(args[args.length-1]);
-            const song = { songTitle: song_info.videoDetails.title, url: song_info.videoDetails.video_url };
-            args.pop(); //byebye yt link
             
             const plistTitle = args.join(' ').toString();
             if (plistTitle === '') return message.reply('You need to specify a title after the visibility!\nFor more information, do -raf help.')
-            const user = await User.findOne({userId:id});
+            let user = await User.findOne({userId:id});
+            if(!user){
+                user = new User({
+                    userId: id,
+                    playlists: [],
+                    quotes: [],
+                });
+            }
             if(user.playlists.length >= 10) return message.reply("Limit of 10 playlists reached! Please delete a playlist, or add songs to an existing one.");
             for(let i = 0; i < user.playlists.length; i++){
                 if(user.playlists[i].title === plistTitle) return message.reply("A playlist with that title already exists!");
             }
             const newPlaylist = new Playlist({
-                songs: [[song]],
                 title: plistTitle,
                 visibility: v,
                 count: 0,
                 owner: user,
             });
-            newPlaylist.save();         
-            user.playlists.push(newPlaylist);
+            newPlaylist.save();
+            user.playlists.push(newPlaylist);         
             user.save();
             return message.channel.send('Playlist created successfully!');
         } catch (error) {

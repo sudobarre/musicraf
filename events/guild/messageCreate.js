@@ -13,9 +13,7 @@ module.exports = (client, Discord, message) => {
     client.commands.get(cmd) ||
     client.commands.find((a) => a.aliases && a.aliases.includes(cmd));
   try {
-    const id = message.author.id;
     //Before bottlenecking with the db here check if the user is in the client's cache. If so, then i think it's already stored in the db.
-    checkUser(id);
     const flagint = 0; //ugly way to work with interactions in some commands.
     command.execute(client, message, cmd, args, Discord, flagint);
   } catch (err) {
@@ -24,15 +22,4 @@ module.exports = (client, Discord, message) => {
   }
   
   
-};
-async function checkUser(id){
-  const user = await User.findOne({userId:id});
-  if(!user){
-    const newUser = new User({
-      userId: id,
-      playlists: [],
-      quotes: [],
-    })
-    await newUser.save();
-  }
 };

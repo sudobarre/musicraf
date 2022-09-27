@@ -20,13 +20,23 @@ module.exports = {
             }else{
                 id = message.author.id;
             }           
-            const user = await User.findOne({userId: id});
+            let user = await User.findOne({userId: id});
+            if(!user){
+                user = new User({
+                    userId: id,
+                    playlists: [],
+                    quotes: [],
+                });
+                await user.save();
+            }
             if(user.playlists.length === 0){
                 return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (title) (songURL) (public/private)" to create a playlist!\nFor more information, do "-rafi help".`);
             }
+            
             let index = parseInt(args[0]);
             if((!Number.isInteger(index)) || index > user.playlists.length || index <= 0) return message.reply("Invalid index!\nTry '-rafi listp' to see all your available playlists!");
             index--;
+            if(!user.playlists[index].songs.length) return message.reply("There are no songs in this playlist.");
             if(id != message.author.id && !user.playlists[index].visibility) return message.reply("The playlist you are trying to see is set to private.");
             const plist = user.playlists[index].songs;
 

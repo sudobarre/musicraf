@@ -26,7 +26,7 @@ const forwardButton = new MessageButton({
 
 const {author, channel} = message
 const helpAll = [
-                {name: 'createplaylist(createp, addp) [public/private] [title] [yt-url]', value: 'Creates a playlist with the given title and adds the given song to it. If its set to private, only you will be able to listen to it.' },
+                {name: 'createplaylist(createp, addp) [public/private] [title]', value: 'Creates a playlist with the given title. If its set to private, only you will be able to listen to it.' },
                 {name: 'deleteplaylist(deletep, removep)', value: 'Deletes a playlist and all its songs.' },
                 {name: 'listplaylist(listp) [optional: user_tag]', value: 'Lists all of the user playlists. If a tag is given, it lists all of the playlists of that user mentioned.' },
                 {name: 'addsong(adds) [yt-url]', value: 'Adds a song to a playlist.' },

@@ -31,7 +31,14 @@ module.exports = {
         }
         try {
             const id = message.author.id;
-            const user = await User.findOne({userId: id});
+            let user = await User.findOne({userId: id});
+            if(!user){
+                user = new User({
+                    userId: id,
+                    playlists: [],
+                    quotes: [],
+                });
+            }
             if(user.playlists.length === 0){
                 return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (public/private) (title) (songURL)" to create a playlist!\nFor more information, do "-rafi help".`);
             }
