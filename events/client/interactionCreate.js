@@ -1,4 +1,5 @@
 const User = require("../../schema/userSchema");
+const ytdl = require('ytdl-core');
 
 async function playSongs(index, interaction, client, Discord){//index = {id, index}
   try {
@@ -64,12 +65,19 @@ module.exports = (client, Discord, interaction) => {
           }
           break;
         case "add-song": //interaction.values is an arr of 1 element consisting of [index, id]. Ugly af.
-          let song = JSON.parse(interaction.values[0].substring(2)); //song
+          
+          //could pass just the url and then do the video finder here
+          let song = new Object();
+          song.url = interaction.values[0].substring(2); //song
+          const song_info = await ytdl.getInfo(song.url);
+          song.songTitle = song_info.videoDetails.title;          
           user = await User.findOne({userId:interaction.user.id});
           idx = parseInt(interaction.values[0]); //index
           plist = user.playlists[idx];
           plist.songs.unshift([song]);
           user.save();
+          //await interaction.deleteReply();
+          return;
           break;
         default:
           break;

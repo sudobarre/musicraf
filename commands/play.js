@@ -33,7 +33,7 @@ function shuffleArray(array) { //usage: arr = shuffleArray(arr); to use with fla
 
 module.exports = {
     name: 'play',
-    aliases: ['p', 'skip', 'stop', 'queue', 'pause', 'unpause'], //add shuffle, play alias for interaction play
+    aliases: ['p', 'skip', 'stop', 'queue'], //add pause, unpause
     description: 'plays music',
     //                    interac       index
     async execute(client, message, cmd, args, Discord, flagint){
@@ -137,7 +137,7 @@ module.exports = {
 
 
 
-const video_player = async (guild, song, flagint, paused) => {
+const video_player = async (guild, song, flagint) => {
     const song_queue = (!flagint) ? queue.get(guild.id) : queue.get(guild);
         
     if(!song) {
@@ -157,13 +157,10 @@ const video_player = async (guild, song, flagint, paused) => {
 
     
     const player = createAudioPlayer();
-    if(paused){
-       player.pause();
-       return await song_queue.text_channel.send('FUCKING PAUSE BRO');
-    } 
+
     const resource = createAudioResource(stream, {inputType:StreamType.Arbitrary});
     song_queue.connection.subscribe(player);
-    player.play(resource, { seek: 0, volume: 0.5 });
+    player.play(resource, { seek: 0, volume: 0.5 }); //maybe unsubscribe here with flagint? idk
     player.on('idle', () => {
         song_queue.songs.shift();
         video_player(guild, song_queue.songs[0], flagint); //is it flagint?
@@ -171,11 +168,6 @@ const video_player = async (guild, song, flagint, paused) => {
     if(song.url !== 'https://www.youtube.com/watch?v=r6-cbMQALcE'){ //if its not silence or sexy music
         await song_queue.text_channel.send(`Now Playing: **${song.title}\n**${song.url}`);  
     }
-    connection.on('disconnect', () => {
-        queue.delete(guild.id);
-        song_queue.text_channel.send(`I got disconnected, cleared songs queue.`); 
-    });
-
 };
 
 const skip_song = (message, server_queue, flagint) => {
@@ -204,7 +196,7 @@ const skip_song = (message, server_queue, flagint) => {
    return message.reply('Player has been stopped and queue has been cleared. Leaving voice channel...');
 };
 
-const print_queue = (message, server_queue) => {
+const print_queue = (message, server_queue) => { //paginated embed here, if only silence, send sth like "please choose a playlist first"
     if(!server_queue) return message.reply('There are no songs remaining in the queue.');
     const songs = server_queue.songs;
     const embed = new Discord.MessageEmbed()

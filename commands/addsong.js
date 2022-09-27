@@ -17,41 +17,35 @@ module.exports = {
             const videoResult = await ytSearch(query);
             return (videoResult.videos.length > 1) ? videoResult.videos[0] : null;
         };
-        const video = await video_finder(args.join(' '));
-        let song = new Object();
-        if (video){
-            song.url = video.url
-        } else {
-            if(!ytdl.validateURL(args[0])) {
-                return message.reply('Invalid link! Needs to be a YouTube URL.');
+
+        let url;
+        if(!ytdl.validateURL(args[0])) {
+            const video = await video_finder(args.join(' '));
+            if (video){
+                url = video.url
             } else {
-                song.url = args[0];
+                return message.reply('Invalid link! Needs to be a YouTube URL.');
             }
-        }
-        const song_info = await ytdl.getInfo(song.url);
-        song.songTitle = song_info.videoDetails.title;
-        if(song.url.length + song.songTitle.length >= 72){
-            while(72 - (song.url.length + song.songTitle.length) <= 0){
-                song.songTitle = song.songTitle.slice(0, -1); 
-            }
+        } else {
+            url = args[0]; 
         }
         try {
             const id = message.author.id;
             const user = await User.findOne({userId: id});
             if(user.playlists.length === 0){
-                return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (title) (songURL) (public/private)" to create a playlist!\nFor more information, do "-rafi help".`);
+                return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (public/private) (title) (songURL)" to create a playlist!\nFor more information, do "-rafi help".`);
             }
             
             //selectmenu here to choose the playlist to add it to.
             let current = user.playlists;
             const row = new MessageActionRow()
             .addComponents(
-                new MessageSelectMenu() 
+                new MessageSelectMenu()
                     .setCustomId('add-song')
                     .setPlaceholder('Playlist')
                     .addOptions([await Promise.all(current.map(async (playlist, index) => ({
                         label:`${current[index].title}`,
-                        value: `${[index, JSON.stringify(song)]}`, //CHECK INTERACTIONCREATE
+                        value: `${[index, url]}`, //CHECK INTERACTIONCREATE
                         })))]),         
                 );
             const embed = new MessageEmbed().setTitle('Choose a playlist to add the song to.');
@@ -64,7 +58,7 @@ module.exports = {
     
             collector.on('collect', async(collected) =>{
                 collected.channel.send({
-                    content: "Song added!",
+                    content:`Added ${url}!`,
                      ephemeral: true,
                 });
                 return;  

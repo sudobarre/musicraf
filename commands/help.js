@@ -30,16 +30,14 @@ const helpAll = [
                 {name: 'deleteplaylist(deletep, removep)', value: 'Deletes a playlist and all its songs.' },
                 {name: 'listplaylist(listp) [optional: user_tag]', value: 'Lists all of the user playlists. If a tag is given, it lists all of the playlists of that user mentioned.' },
                 {name: 'addsong(adds) [yt-url]', value: 'Adds a song to a playlist.' },
-                {name: 'listsongs(lists) [playlist_index] [optional: user_tag]', value: 'Lists all songs in the playlist indicated by the index. If a tag is given, it lists all of the songs of that user playlist if its public.' },
+                {name: 'listsongs(lists) [playlist_index] [optional: user_tag]', value: 'Lists all songs in the playlist indicated by the index. If a tag is given, it lists all of the songs of that users playlist if its public.' },
                 {name: 'removesong(deletesong) [playlist_index] [song_index] ', value: 'Deletes a song located in the index of the playlist indicated by the index. The indexes are the position indicated on their list.' },
-                {name: 'songs [optional: user_tag]', value: 'Plays one of your playlists. If a tag is given, it plays the mentioned user playlist, if said playlist is set to public. May take some time to load the songs.'},
+                {name: 'songs [optional: user_tag]', value: 'Plays one of your playlists. If a tag is given, it plays the mentioned user playlist if its set to public. May take some time to load all the songs.'},
+                {name: 'top(mostplayed, mostp)', value: 'Displays the top 10 most played public playlists.'},
                 {name: 'play (p) [song_name or yt_link]', value:'Plays a yt song via link or name. Pls do -rafi stop when you are done listening, as he doesnt know when to stop and he will keep playing until someone ends his torture.'},
                 {name: 'stop', value: 'Stops music and leaves the vc.'},
                 {name: 'skip', value: 'Skips the current song.'},
                 {name: 'queue', value: 'Displays the songs queue.'},
-                {name: 'quote (q) [member_tag]', value: 'Returns a random catchphrase from the member tag passed.' },
-                {name: 'addquote(addq) [member_tag] [quote_to_add]', value: 'Adds a quote to a given member.'},
-                {name: 'removequote(removeq) [member_tag] [quote_to_remove]', value: 'Removes a quote from a given member.'},
             ]
 
 
