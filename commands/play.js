@@ -1,11 +1,7 @@
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
-const Discord = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, StreamType, AudioPlayerStatus, NoSubscriberBehavior } = require('@discordjs/voice');
-const { Client, Message, MessageEmbed, GatewayIntentBits } = require('discord.js');
-const { MessageActionRow, MessageSelectMenu } = require('discord.js');
-const { query } = require('express');
-const { Player } = require('discord-player');
+const {MessageActionRow, MessageButton, MessageEmbed} = require('discord.js');
 const User = require("../schema/userSchema");
 
 let connection;
@@ -131,8 +127,9 @@ module.exports = {
         else if (cmd === 'stop'){stop_song(message, server_queue);}
         else if (cmd === 'queue'){print_queue(message, server_queue);}
 
-    },    
+    },
 
+    
 };
 
 
@@ -166,7 +163,7 @@ const video_player = async (guild, song, flagint) => {
         video_player(guild, song_queue.songs[0], flagint); //is it flagint?
     });
     if(song.url !== 'https://www.youtube.com/watch?v=r6-cbMQALcE'){ //if its not silence or sexy music
-        await song_queue.text_channel.send(`Now Playing: **${song.title}\n**${song.url}`);  
+        await song_queue.text_channel.send(`Now Playing: **${song.title}**`);  
     }
 };
 
@@ -196,17 +193,108 @@ const skip_song = (message, server_queue, flagint) => {
    return message.reply('Player has been stopped and queue has been cleared. Leaving voice channel...');
 };
 
+
 const print_queue = (message, server_queue) => { //paginated embed here, if only silence, send sth like "please choose a playlist first"
     if(!server_queue) return message.reply('There are no songs remaining in the queue.');
     const songs = server_queue.songs;
-    const embed = new Discord.MessageEmbed()
-            .setColor('#75BB67')
-            .setTitle('Songs');
-
-    embed.addFields({name: (`Current:`), value: (`${songs[0].title}\n${songs[0].url}`)});
-
-    for(let i = 1; i < server_queue.songs.length; i++){
-        embed.addFields({name: (`Position ${(i+1).toString()}:`), value: (`${songs[i].title}\n${songs[i].url}`)});  
-    }
-    message.reply({ embeds: [embed] });
+    
+    return embedSender(message, songs); //return embed
+    
 };
+async function embedSender(message, songs) {
+    //plist: only the array of arrays of one song each.
+    try {
+
+        const backId = 'back'
+        const forwardId = 'forward'
+        const backButton = new MessageButton({
+        style: 'SECONDARY',
+        label: 'Back',
+        emoji: '⬅️',
+        customId: backId
+        })
+        const forwardButton = new MessageButton({
+        style: 'SECONDARY',
+        label: 'Forward',
+        emoji: '➡️',
+        customId: forwardId
+        })
+
+        // Put the following code wherever you want to send the embed pages:
+
+        const {author, channel} = message;
+        //change it to array of playlist titles
+        let titles = songs;
+
+        //* Creates an embed with guilds starting from an index.
+        ///* @param {number} start The index to start from.
+        //* @returns {Promise<MessageEmbed>}
+        
+        const generateEmbed = async start => {
+            let current = [];
+                  for(let i = start; i < start+5; i++){
+                    if(i === titles.length-1){ 
+                        current.push(songs[i]);
+                        i = start + 5; //shitty way in case its not multiple of ten, could use modulo later idk too braindead rn lol.
+                    } else {
+                      current.push(songs[i]);
+                    }
+                  }
+            //current = array of plist of 5 elements max, cycles with forward/back buttons.
+
+            
+            return new MessageEmbed({   
+            title: `Showing songs ${start + 1}-${start + current.length} out of ${
+                titles.length}`,
+            fields: await Promise.all(
+                current.map(async (playlist, index) => ({
+                name:`${index+1+start}: ${current[index].title}`,
+                value: `${current[index].url}`,
+                }))
+            )
+            })
+        }
+        
+        // Send the embed with the first 10 playlist
+        const canFitOnOnePage = titles.length <= 5
+        const embedMessage = await channel.send({
+            embeds: [await generateEmbed(0)],
+            components: canFitOnOnePage
+            ? []
+            : [new MessageActionRow({components: [forwardButton]})]
+        })
+        // Exit if there is only one page of guilds (no need for all of this)
+        if (canFitOnOnePage) return;
+        
+        // Collect button interactions (when a user clicks a button),
+        // but only when the button as clicked by the original message author
+        const collector = embedMessage.createMessageComponentCollector({
+            filter: ({user}) => user.id === author.id
+        })
+        
+        //doesnt show the next page
+        let currentIndex = 0
+        collector.on('collect', async interaction => {
+            // Increase/decrease index
+            interaction.customId === backId ? (currentIndex -= 5) : (currentIndex += 5)
+            // Respond to interaction by updating message with new embed
+            await interaction.update({
+            embeds: [await generateEmbed(currentIndex)],
+            components: [
+                new MessageActionRow({
+                components: [
+                    // back button if it isn't the start
+                    ...(currentIndex ? [backButton] : []),
+                    // forward button if it isn't the end
+                    ...(currentIndex + 5 < songs.length ? [forwardButton] : [])
+                ]
+                })
+            ]
+            })
+        })
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+

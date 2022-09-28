@@ -1,6 +1,5 @@
 const User = require("../schema/userSchema");
 const {MessageActionRow, MessageButton, MessageEmbed} = require('discord.js');
-const ytdl = require('ytdl-core');
 
 module.exports = {
 	name :'listsong',
