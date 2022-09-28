@@ -6,6 +6,7 @@ const User = require("../schema/userSchema");
 
 let connection;
 const queue = new Map();
+const silence = 'https://www.youtube.com/watch?v=r6-cbMQALcE';
 
 function shuffleArray(array) { //usage: arr = shuffleArray(arr); to use with flagint == 1
     let curId = array.length;
@@ -116,7 +117,7 @@ module.exports = {
                         throw err;
                     }
                 } else{ //there is a server queue, interaction would enter here.
-                    if(args[0] === 'https://www.youtube.com/watch?v=r6-cbMQALcE') return; //if songs is invoked while there is music playing ignore the silence.
+                    if(args[0] === silence) return; //if songs is invoked while there is music playing ignore the silence.
 
                     server_queue.songs.push(song);
                     return (!flagint) ? message.reply(`**${song.title}** Added to queue!\n${song.url}`) : console.log('added to queue');
@@ -162,7 +163,7 @@ const video_player = async (guild, song, flagint) => {
         song_queue.songs.shift();
         video_player(guild, song_queue.songs[0], flagint); //is it flagint?
     });
-    if(song.url !== 'https://www.youtube.com/watch?v=r6-cbMQALcE'){ //if its not silence or sexy music
+    if(song.url !== silence){ //if its not silence
         await song_queue.text_channel.send(`Now Playing: **${song.title}**`);  
     }
 };
@@ -197,6 +198,7 @@ const skip_song = (message, server_queue, flagint) => {
 const print_queue = (message, server_queue) => { //paginated embed here, if only silence, send sth like "please choose a playlist first"
     if(!server_queue) return message.reply('There are no songs remaining in the queue.');
     const songs = server_queue.songs;
+    if(songs[0].url === silence) return message.reply('Please choose a playlist first!');
     
     return embedSender(message, songs); //return embed
     
