@@ -137,7 +137,7 @@ module.exports = {
 
 const video_player = async (guild, song, flagint) => {
     const song_queue = (!flagint) ? queue.get(guild.id) : queue.get(guild);
-        
+    
     if(!song) {
         connection.disconnect();
         (!flagint) ? queue.delete(guild.id) : queue.delete(guild); //if called by interaction then the guild id is in guild itself.
@@ -163,8 +163,34 @@ const video_player = async (guild, song, flagint) => {
         song_queue.songs.shift();
         video_player(guild, song_queue.songs[0], flagint); //is it flagint?
     });
-    if(song.url !== silence){ //if its not silence
-        await song_queue.text_channel.send(`Now Playing: **${song.title}**`);  
+    if(song.url !== silence){ 
+        await song_queue.text_channel.send(`Now Playing: **${song.title}**`);
+        //send the button to skip here.
+        const server_queue = (!flagint) ? queue.get(guild.id) : queue.get(guild);
+        const forwardId = 'forward'
+        const forwardButton = new MessageButton({
+            style: 'SECONDARY',
+            label: 'Skip',
+            emoji: '➡️',
+            customId: forwardId
+            });
+
+            //TODO stop button
+            const embedMessage = await song_queue.text_channel.send({
+                components: [new MessageActionRow({components: [forwardButton]})]
+            })
+            const collector = embedMessage.createMessageComponentCollector({
+
+            })
+
+            collector.on('collect', async interaction => {
+                // Increase/decrease index
+                if(interaction.customId === forwardId){
+                    interaction.deferUpdate();
+                    skip_song(interaction, server_queue, 1);
+                    collector.stop();
+                }  
+            })
     }
 };
 
@@ -183,7 +209,6 @@ const skip_song = (message, server_queue, flagint) => {
     }
     server_queue.songs.shift();
     video_player(message.guild, server_queue.songs[0]);
-
    };
 
    const stop_song = (message, server_queue) => {

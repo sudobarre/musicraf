@@ -43,6 +43,9 @@ module.exports = {
                 content: "Deleted successfully.",
                 ephemeral: true,
             });
+            collector.stop();
+            
+            
             
         });
        message.channel.send({embeds: [embed], components: [row]});

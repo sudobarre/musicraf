@@ -64,11 +64,14 @@ module.exports = {
             const collector = message.channel.createMessageComponentCollector({ filter: ({user}) => user.id === message.author.id, max: 1});
     
             collector.on('collect', async(collected) =>{
+                collected.deferUpdate();
                 collected.channel.send({
                     content:`Added ${url}!`,
                      ephemeral: true,
                 });
-                return;  
+                collector.stop();
+                
+                
             });
            message.channel.send({embeds: [embed], components: [row]});
         } catch (error) {
