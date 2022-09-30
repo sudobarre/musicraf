@@ -57,7 +57,7 @@ const guilds = [...client.guilds.cache.values()]
       : [new MessageActionRow({components: [forwardButton]})]
   })
   // Exit if there is only one page of guilds (no need for all of this)
-  if (canFitOnOnePage) return
+  if (canFitOnOnePage) return;
   
   // Collect button interactions (when a user clicks a button),
   // but only when the button as clicked by the original message author

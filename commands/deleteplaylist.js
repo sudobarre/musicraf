@@ -12,7 +12,7 @@ module.exports = {
         const id = message.author.id;
         const user = await User.findOne({userId: id});
         if(user.playlists.length === 0){
-            return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (title) (songURL) (public/private)" to create a playlist!\nFor more information, do "-raf help".`);
+            return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (public/private) (title)" to create a playlist!\nFor more information, do "-raf help".`);
         }
 
         let current = user.playlists;
@@ -30,25 +30,20 @@ module.exports = {
             );
             const embed = new MessageEmbed().setTitle('Choose a playlist to delete.\nThis will delete the playlist as well as all its songs.');
 
-        const filter = (interaction) => 
-            interaction.isSelectMenu() && 
-            interaction.user.id === message.author.id;
-
-        const collector = message.channel.createMessageComponentCollector({ filter: ({user}) => user.id === message.author.id, max: 1});
-
-        collector.on('collect', async(collected) =>{
-            const value = collected.values[0];
-            collected.deferUpdate();
-            collected.channel.send({
-                content: "Deleted successfully.",
-                ephemeral: true,
-            });
-            collector.stop();
-            
-            
-            
-        });
+       
        message.channel.send({embeds: [embed], components: [row]});
+       const collector = message.channel.createMessageComponentCollector({
+        filter: ({user}) => user.id === message.author.id,
+        max: 1,
+        time: 15000,
+    });
 
+       collector.on('collect', async(collected) =>{
+           collected.reply({
+               content: "Deleted successfully.",
+               ephemeral: true,
+           });
+           collector.stop();
+       });
     },
 }; 

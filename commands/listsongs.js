@@ -109,7 +109,7 @@ module.exports = {
                     titles.length}`,
                 fields: await Promise.all(
                     current.map(async (playlist, index) => ({
-                    name:`${index+1+start}: ${current[index][0].songTitle}`,
+                    name:`**${index+1+start}**: ${current[index][0].songTitle}`,
                     value: `${current[index][0].url}`,
                     }))
                 )

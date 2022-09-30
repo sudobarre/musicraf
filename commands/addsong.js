@@ -40,8 +40,9 @@ module.exports = {
                 });
             }
             if(user.playlists.length === 0){
-                return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (public/private) (title) (songURL)" to create a playlist!\nFor more information, do "-rafi help".`);
+                return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (public/private) (title)" to create a playlist!\nFor more information, do "-rafi help".`);
             }
+            
             
             //selectmenu here to choose the playlist to add it to.
             let current = user.playlists;
@@ -52,28 +53,30 @@ module.exports = {
                     .setPlaceholder('Playlist')
                     .addOptions([await Promise.all(current.map(async (playlist, index) => ({
                         label:`${current[index].title}`,
-                        value: `${[index, url]}`, //CHECK INTERACTIONCREATE
+                        value: `${[index, url]}`,
+                        ephemeral: true, //CHECK INTERACTIONCREATE
                         })))]),         
                 );
-            const embed = new MessageEmbed().setTitle('Choose a playlist to add the song to.');
-    
-            const filter = (interaction) => 
-                interaction.isSelectMenu() && 
-                interaction.user.id === message.author.id;
-    
-            const collector = message.channel.createMessageComponentCollector({ filter: ({user}) => user.id === message.author.id, max: 1});
+            const embed = new MessageEmbed().setTitle('Choose a playlist to add the song to. You can choose multiple playlists.');
+            const filter = (user) => {
+                //console.log(user.user);
+                //console.log(user.user.id);
+                //console.log(user.user.id === message.author.id);
+                return user.user.id === message.author.id;
+            }
+            const collector = message.channel.createMessageComponentCollector({
+                filter, 
+                max: 1,
+                time: 15000
+                });
     
             collector.on('collect', async(collected) =>{
-                collected.deferUpdate();
                 collected.channel.send({
                     content:`Added ${url}!`,
-                     ephemeral: true,
                 });
                 collector.stop();
-                
-                
             });
-           message.channel.send({embeds: [embed], components: [row]});
+            message.channel.send({embeds: [embed], components: [row], ephemeral: true});
         } catch (error) {
             console.error(error);
         }

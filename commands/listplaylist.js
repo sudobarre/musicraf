@@ -21,7 +21,7 @@ module.exports = {
             const user = await User.findOne({userId: id});
             const plists = user.playlists;
             if(plists.length === 0){
-                return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (public/private) (title) (songURL) " to create a playlist!\nFor more information, do "-raf help".`);
+                return message.reply(`You don't have any playlist saved yet!\nTry "-raf createp (public/private) (title)" to create a playlist!\nFor more information, do "-raf help".`);
             }
             // Put the following code wherever you want to send the embed pages:
 
@@ -38,8 +38,8 @@ module.exports = {
                 title: `Showing playlists:`,
                 fields: await Promise.all(
                     current.map(async (playlist, index) => ({
-                    name:`${index+1}: ${current[index].title}`,
-                    value: `Played ${current[index].count} times.`
+                    name:`**${index+1}**: ${current[index].title}`,
+                    value: `${nameVisibility(current[index].visibility)}`
                     }))
                 )
                 })
@@ -69,6 +69,13 @@ module.exports = {
                 return client.users.cache.get(mention);
             }
             return 0;
+        }
+        function nameVisibility(v){
+            if(v){
+                return "Public";
+            } else {
+                return "Private";
+            }
         }
     },
 };

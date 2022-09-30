@@ -186,8 +186,17 @@ const video_player = async (guild, song, flagint) => {
             collector.on('collect', async interaction => {
                 // Increase/decrease index
                 if(interaction.customId === forwardId){
-                    interaction.deferUpdate();
+                    //delete button
                     skip_song(interaction, server_queue, 1);
+                    interaction.update({components: [
+                        new MessageActionRow({
+                        components: [new MessageButton({
+                            style: 'SECONDARY',
+                            customId:'skipped',
+                            label:'Skipped'
+                            })]
+                    })
+                ]});
                     collector.stop();
                 }  
             })

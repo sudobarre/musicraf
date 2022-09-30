@@ -65,20 +65,20 @@ module.exports = (client, Discord, interaction) => {
           }
           break;
         case "add-song": //interaction.values is an arr of 1 element consisting of [index, id]. Ugly af.
-          
-          //could pass just the url and then do the video finder here
           let song = new Object();
+          //console.log(interaction);
           song.url = interaction.values[0].substring(2); //song
-          const song_info = await ytdl.getInfo(song.url);
-          song.songTitle = song_info.videoDetails.title;          
+          //.related_videos.id + https://www.youtube.com/watch?v=
+          //console.log((await ytdl.getInfo(song.url)).related_videos);
+          const song_info = (await ytdl.getInfo(song.url)).videoDetails.title;
+          song.songTitle = song_info;     
           user = await User.findOne({userId:interaction.user.id});
           idx = parseInt(interaction.values[0]); //index
+          if(idx >= user.playlists.length) return; //in case someone else chosoes it, temporary mesaure lol.
           plist = user.playlists[idx];
           plist.songs.unshift([song]);
           user.save();
-          //await interaction.deleteReply();
           return;
-          break;
         default:
           break;
       }      

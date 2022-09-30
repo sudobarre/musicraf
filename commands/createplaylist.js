@@ -4,7 +4,7 @@ const ytdl = require('ytdl-core');
 
 module.exports = {
 	name :'createplaylist',
-    aliases: ['createp', 'addp', 'addplaylist'],
+    aliases: ['createp', 'addp', 'addplaylist', 'newp', 'newplaylist'],
 	description: 'creates a playlist.',
 	once: true,
 	async execute(client, message, cmd, args) {
