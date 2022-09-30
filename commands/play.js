@@ -126,7 +126,7 @@ module.exports = {
         }
         else if (cmd === 'skip'){skip_song(message, server_queue, flagint);}
         else if (cmd === 'stop'){stop_song(message, server_queue);}
-        else if (cmd === 'queue'){print_queue(message, server_queue);}
+        else if (cmd === 'queue'){print_queue(message, server_queue, 0);}
 
     },
 
@@ -170,14 +170,29 @@ const video_player = async (guild, song, flagint) => {
         const forwardId = 'forward'
         const forwardButton = new MessageButton({
             style: 'SECONDARY',
-            label: 'Skip',
-            emoji: '➡️',
+            label: '',
+            emoji: '⏭️',
             customId: forwardId
+            });
+            const queueId = 'queue'
+        const queueButton = new MessageButton({
+            style: 'SECONDARY',
+            label: '',
+            emoji: '🇶',
+            customId: queueId
+            });
+
+            const stopId = 'stop'
+        const stopButton = new MessageButton({
+            style: 'DANGER',
+            label: '',
+            emoji: '⏹️',
+            customId: stopId
             });
 
             //TODO stop button
             const embedMessage = await song_queue.text_channel.send({
-                components: [new MessageActionRow({components: [forwardButton]})]
+                components: [new MessageActionRow({components: [forwardButton, queueButton, stopButton],})]
             })
             const collector = embedMessage.createMessageComponentCollector({
 
@@ -185,19 +200,29 @@ const video_player = async (guild, song, flagint) => {
 
             collector.on('collect', async interaction => {
                 // Increase/decrease index
-                if(interaction.customId === forwardId){
-                    //delete button
-                    skip_song(interaction, server_queue, 1);
-                    interaction.update({components: [
-                        new MessageActionRow({
-                        components: [new MessageButton({
-                            style: 'SECONDARY',
-                            customId:'skipped',
-                            label:'Skipped'
-                            })]
-                    })
-                ]});
-                    collector.stop();
+                switch(interaction.customId){
+                    case forwardId:
+                        //delete button
+                        skip_song(interaction, server_queue, 1);
+                        interaction.update({components: [
+                            new MessageActionRow({
+                            components: [new MessageButton({
+                                style: 'SECONDARY',
+                                customId:'skipped',
+                                label:'Skipped'
+                                })]
+                        })
+                    ]})
+                    collector.stop();;
+                    break;
+                    case queueId:
+                        print_queue(interaction, server_queue, 1);
+                        break;
+                    case stopId:
+                        stop_song(interaction, server_queue);
+                        collector.stop();
+                    default:
+                        break;
                 }  
             })
     }
@@ -228,13 +253,12 @@ const skip_song = (message, server_queue, flagint) => {
    return message.reply('Player has been stopped and queue has been cleared. Leaving voice channel...');
 };
 
-
-const print_queue = (message, server_queue) => { //paginated embed here, if only silence, send sth like "please choose a playlist first"
+//🇶 for the queue emoji
+const print_queue = (message, server_queue, flagint) => { //paginated embed here, if only silence, send sth like "please choose a playlist first"
     if(!server_queue) return message.reply('There are no songs remaining in the queue.');
     const songs = server_queue.songs;
     if(songs[0].url === silence) return message.reply('Please choose a playlist first!');
-    
-    return embedSender(message, songs); //return embed
+    return (flagint) ? buttonEmbedSender(message, songs) : embedSender(message, songs); //return embed
     
 };
 async function embedSender(message, songs) {
@@ -293,7 +317,7 @@ async function embedSender(message, songs) {
         
         // Send the embed with the first 10 playlist
         const canFitOnOnePage = titles.length <= 5
-        const embedMessage = await channel.send({
+        const embedMessage = await message.reply({
             embeds: [await generateEmbed(0)],
             components: canFitOnOnePage
             ? []
@@ -331,6 +355,36 @@ async function embedSender(message, songs) {
     } catch (error) {
         console.error(error);
     }
+};
+async function buttonEmbedSender(message, songs) {
+    let titles = songs;
+    const generateEmbed = async start => {
+        let current = [];
+              for(let i = start; i < start+5; i++){
+                if(i === titles.length-1){ 
+                    current.push(songs[i]);
+                    i = start + 5; //shitty way in case its not multiple of ten, could use modulo later idk too braindead rn lol.
+                } else {
+                  current.push(songs[i]);
+                }
+              }
+        //current = array of plist of 5 elements max, cycles with forward/back buttons.
+
+        
+        return new MessageEmbed({   
+        title: `Showing first ${start + current.length} songs out of ${
+            titles.length}`,
+        fields: await Promise.all(
+            current.map(async (playlist, index) => ({
+            name:`${index+1+start}: ${current[index].title}`,
+            value: `${current[index].url}`,
+            }))
+        )
+        })
+    }
+    const embedMessage = await message.reply({
+        embeds: [await generateEmbed(0)],
+        components: []});
 };
 
 
