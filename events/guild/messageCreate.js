@@ -8,7 +8,6 @@ module.exports = (client, Discord, message) => {
 
   const args = message.content.slice(prefix.length).split(/ +/);
   const cmd = args.shift().toLowerCase();
-  if(cmd === 'bazinga') return message.reply('*laugh track*');
   const command =
     client.commands.get(cmd) ||
     client.commands.find((a) => a.aliases && a.aliases.includes(cmd));

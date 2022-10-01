@@ -110,6 +110,7 @@ module.exports = {
                 });
                 }
             }    
+            
         });
        message.channel.send({embeds: [embed], components: [row]});
 

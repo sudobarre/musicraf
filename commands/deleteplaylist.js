@@ -41,8 +41,8 @@ module.exports = {
        collector.on('collect', async(collected) =>{
            collected.reply({
                content: "Deleted successfully.",
-               ephemeral: true,
            });
+           collected.message.delete();
            collector.stop();
        });
     },

@@ -57,7 +57,7 @@ module.exports = (client, Discord, interaction) => {
             id: id,
             index: idx,
           }
-          //check for visibility here
+          //check for visibility
           if(!(id != interaction.user.id && !plist.visibility)){
             playSongs(index, interaction, client, Discord);
           } else {

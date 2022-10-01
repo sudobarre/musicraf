@@ -174,7 +174,7 @@ const video_player = async (guild, song, flagint) => {
             emoji: '⏭️',
             customId: forwardId
             });
-            const queueId = 'queue'
+        const queueId = 'queue'
         const queueButton = new MessageButton({
             style: 'SECONDARY',
             label: '',
@@ -204,23 +204,15 @@ const video_player = async (guild, song, flagint) => {
                     case forwardId:
                         //delete button
                         skip_song(interaction, server_queue, 1);
-                        interaction.update({components: [
-                            new MessageActionRow({
-                            components: [new MessageButton({
-                                style: 'SECONDARY',
-                                customId:'skipped',
-                                label:'Skipped'
-                                })]
-                        })
-                    ]})
-                    collector.stop();;
+                        interaction.message.delete();
+                    collector.stop();
                     break;
                     case queueId:
                         print_queue(interaction, server_queue, 1);
                         break;
                     case stopId:
                         stop_song(interaction, server_queue);
-                        collector.stop();
+                        interaction.message.delete();
                     default:
                         break;
                 }  

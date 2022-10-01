@@ -59,9 +59,6 @@ module.exports = {
                 );
             const embed = new MessageEmbed().setTitle('Choose a playlist to add the song to. You can choose multiple playlists.');
             const filter = (user) => {
-                //console.log(user.user);
-                //console.log(user.user.id);
-                //console.log(user.user.id === message.author.id);
                 return user.user.id === message.author.id;
             }
             const collector = message.channel.createMessageComponentCollector({
@@ -74,7 +71,7 @@ module.exports = {
                 collected.channel.send({
                     content:`Added ${url}!`,
                 });
-                collector.stop();
+                collected.message.delete();
             });
             message.channel.send({embeds: [embed], components: [row], ephemeral: true});
         } catch (error) {
