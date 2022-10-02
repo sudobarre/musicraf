@@ -231,9 +231,11 @@ const video_player = async (guild, song, flagint, cmd) => {
                     break;
                 case stopId:
                     server_queue.songs = [];
+                    //console.log(interaction);
                     queue.delete(interaction.guildId);
                     connection.destroy(); 
                     interaction.message.delete();
+                    break;
                 case pauseId:
                     player.pause();
                     await interaction.update({
@@ -411,6 +413,9 @@ async function buttonEmbedSender(message, songs) {
         )
         })
     }
+    const embedMessage = await message.reply({
+        embeds: [await generateEmbed(0)],
+        components: []});
 };
 
 
