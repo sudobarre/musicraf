@@ -231,7 +231,7 @@ const video_player = async (guild, song, flagint, cmd) => {
                     break;
                 case stopId:
                     server_queue.songs = [];
-                    //console.log(interaction);
+                    //player.stop();
                     queue.delete(interaction.guildId);
                     connection.destroy(); 
                     interaction.message.delete();
