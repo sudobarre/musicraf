@@ -2,7 +2,7 @@ const {MessageActionRow, MessageButton, MessageEmbed} = require('discord.js');
 module.exports = {
     name: 'guilds',
     async execute(client, message, cmd, args, Discord){ //play-dl as alternative
-      if(message.author.id !== process.env.rafi || message.author.id !== process.env.rafiAlt) return message.reply('Only my owner can execute this command!');
+      if(message.author.id !== process.env.rafi && message.author.id !== process.env.rafiAlt) return message.reply('Only my owner can execute this command!');
 
 // Constants
 
