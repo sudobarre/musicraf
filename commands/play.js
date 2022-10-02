@@ -90,7 +90,6 @@ module.exports = {
                     }
                 }
 
-
                 if (!server_queue){ // interaction already has one, goes to else
                     
                     const queue_constructor = {
@@ -104,13 +103,14 @@ module.exports = {
                     queue_constructor.songs.push(song);
         
                     try {
+
                             connection = await joinVoiceChannel({
                             channelId: message.member.voice.channel.id,
                             guildId: message.guild.id,
                             adapterCreator: message.guild.voiceAdapterCreator,
                         });
                         queue_constructor.connection = connection;
-                        video_player(message.guild, queue_constructor.songs[0]);
+                        video_player(message.guild, queue_constructor.songs[0]); //(guild, song, flagint, cmd)
                     } catch (err) {
                         queue.delete(message.guild.id);
                         message.reply('There was an error connecting.');
@@ -135,13 +135,23 @@ module.exports = {
 
 
 
-const video_player = async (guild, song, flagint) => {
+const video_player = async (guild, song, flagint, cmd) => {
     const song_queue = (!flagint) ? queue.get(guild.id) : queue.get(guild);
+    const player = createAudioPlayer({
+        behaviors: {
+            noSubscriber: NoSubscriberBehavior.Pause,
+        },
+    });
+    
+    //maybe do a back button where it just plays the same song again with video_finder without shifting the queue.
     
     if(!song) {
-        connection.disconnect();
+        player.stop(); //may not be necessary.
+
+        connection.destroy(); //.disconnect()
+        
         (!flagint) ? queue.delete(guild.id) : queue.delete(guild); //if called by interaction then the guild id is in guild itself.
-        return;
+        return song_queue.text_channel.send("No songs left in the queue. Leaving voice channel...");
     }
     const stream = ytdl(song.url, {
         filter: "audioonly",
@@ -153,19 +163,19 @@ const video_player = async (guild, song, flagint) => {
         quality: "lowestaudio",
    });
 
-    
-    const player = createAudioPlayer();
-
     const resource = createAudioResource(stream, {inputType:StreamType.Arbitrary});
     song_queue.connection.subscribe(player);
     player.play(resource, { seek: 0, volume: 0.5 }); //maybe unsubscribe here with flagint? idk
+    let embedMessage;
     player.on('idle', () => {
-        song_queue.songs.shift();
+        if(song_queue.songs[0] != silence){
+            embedMessage.delete();
+            song_queue.songs.shift();
+        }
         video_player(guild, song_queue.songs[0], flagint); //is it flagint?
     });
-    if(song.url !== silence){ 
-        await song_queue.text_channel.send(`Now Playing: **${song.title}**`);
-        //send the button to skip here.
+    if(song.url !== silence){
+        const embed = new MessageEmbed().setTitle(`Now Playing: **${song.title}**`); 
         const server_queue = (!flagint) ? queue.get(guild.id) : queue.get(guild);
         const forwardId = 'forward'
         const forwardButton = new MessageButton({
@@ -189,36 +199,64 @@ const video_player = async (guild, song, flagint) => {
             emoji: '⏹️',
             customId: stopId
             });
+            const pauseId = 'pause'
+        const pauseButton = new MessageButton({
+            style: 'SECONDARY',
+            label: '',
+            emoji: '⏸️',
+            customId: pauseId
+            });
+            const unpauseId = 'unpause'
+        const unpauseButton = new MessageButton({
+            style: 'SECONDARY',
+            label: '',
+            emoji: '▶️',
+            customId: unpauseId
+            });
+        embedMessage = await song_queue.text_channel.send({
+            embeds:[embed],
+            components: [new MessageActionRow({components: [pauseButton, forwardButton, queueButton, stopButton],})]
+        });
+            
+        const collector = embedMessage.createMessageComponentCollector({
+        });
 
-            //TODO stop button
-            const embedMessage = await song_queue.text_channel.send({
-                components: [new MessageActionRow({components: [forwardButton, queueButton, stopButton],})]
-            })
-            const collector = embedMessage.createMessageComponentCollector({
-                
-            })
-
-            collector.on('collect', async interaction => {
-                // Increase/decrease index
-                switch(interaction.customId){
-                    case forwardId:
-                        //delete button
-                        skip_song(interaction, server_queue, 1);
-                        interaction.message.delete();
-                    collector.stop();
+        collector.on('collect', async interaction => {
+            switch(interaction.customId){
+                case forwardId:
+                    skip_song(interaction, server_queue, 1);
+                    interaction.message.delete();
+                collector.stop();
+                break;
+                case queueId:
+                    print_queue(interaction, server_queue, 1);
                     break;
-                    case queueId:
-                        print_queue(interaction, server_queue, 1);
-                        break;
-                    case stopId:
-                        stop_song(interaction, server_queue);
-                        interaction.message.delete();
-                    default:
-                        break;
-                }  
-            })
+                case stopId:
+                    server_queue.songs = [];
+                    queue.delete(interaction.guildId);
+                    connection.destroy(); 
+                    interaction.message.delete();
+                case pauseId:
+                    player.pause();
+                    await interaction.update({
+                        embeds:[embed],
+                        components: [new MessageActionRow({components: [unpauseButton, forwardButton, queueButton, stopButton],})]
+                    })
+                    break;
+                case unpauseId:
+                    player.unpause();
+                    await interaction.update({
+                        embeds:[embed],
+                        components: [new MessageActionRow({components: [pauseButton, forwardButton, queueButton, stopButton],})]
+                    });
+                    break;
+                default:
+                    break;
+            }  
+        })
     }
 };
+
 
 const skip_song = (message, server_queue, flagint) => {
     if(flagint !== 0){ //if called by interaction then there is a song queued up already.
@@ -229,7 +267,7 @@ const skip_song = (message, server_queue, flagint) => {
         if(!server_queue || server_queue.songs.length === 1){
             message.reply('There are no songs left in queue. Leaving voice channel...');
             queue.delete(message.guild.id);
-            connection.disconnect();
+            connection.destroy();
             return;
         }
     }
@@ -241,7 +279,7 @@ const skip_song = (message, server_queue, flagint) => {
    if(!message.member.voice.channel) return message.reply('You need to be in a channel to execute this command.');
    server_queue.songs = [];
    queue.delete(message.guild.id);
-   connection.disconnect();
+   connection.destroy(); 
    return message.reply('Player has been stopped and queue has been cleared. Leaving voice channel...');
 };
 
@@ -321,7 +359,8 @@ async function embedSender(message, songs) {
         // Collect button interactions (when a user clicks a button),
         // but only when the button as clicked by the original message author
         const collector = embedMessage.createMessageComponentCollector({
-            filter: ({user}) => user.id === author.id
+            filter: ({user}) => user.id === author.id,
+            time: 30000,
         })
         
         //doesnt show the next page
