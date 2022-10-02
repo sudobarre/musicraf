@@ -146,10 +146,8 @@ const video_player = async (guild, song, flagint, cmd) => {
     //maybe do a back button where it just plays the same song again with video_finder without shifting the queue.
     
     if(!song) {
-        player.stop(); //may not be necessary.
-
-        connection.destroy(); //.disconnect()
-        
+        player.stop(); 
+        connection.destroy(); 
         (!flagint) ? queue.delete(guild.id) : queue.delete(guild); //if called by interaction then the guild id is in guild itself.
         return song_queue.text_channel.send("No songs left in the queue. Leaving voice channel...");
     }
@@ -360,7 +358,7 @@ async function embedSender(message, songs) {
         // but only when the button as clicked by the original message author
         const collector = embedMessage.createMessageComponentCollector({
             filter: ({user}) => user.id === author.id,
-            time: 30000,
+            time: 120000,
         })
         
         //doesnt show the next page
@@ -413,9 +411,6 @@ async function buttonEmbedSender(message, songs) {
         )
         })
     }
-    const embedMessage = await message.reply({
-        embeds: [await generateEmbed(0)],
-        components: []});
 };
 
 

@@ -68,7 +68,7 @@ module.exports = {
     
             collector.on('collect', async(collected) =>{
                 collected.channel.send({
-                    content:`Added ${url}!`,
+                    content:`Added ${url}`,
                 });
                 collected.message.delete();
             });

@@ -131,7 +131,7 @@ module.exports = {
             // but only when the button as clicked by the original message author
             const collector = embedMessage.createMessageComponentCollector({
                 filter: ({user}) => user.id === author.id,
-                time: 30000,
+                time: 300000,
             })
             
             //doesnt show the next page
