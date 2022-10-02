@@ -195,7 +195,7 @@ const video_player = async (guild, song, flagint) => {
                 components: [new MessageActionRow({components: [forwardButton, queueButton, stopButton],})]
             })
             const collector = embedMessage.createMessageComponentCollector({
-                time: 20000,
+                
             })
 
             collector.on('collect', async interaction => {
