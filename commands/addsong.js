@@ -57,14 +57,13 @@ module.exports = {
                         ephemeral: true, //CHECK INTERACTIONCREATE
                         })))]),         
                 );
-            const embed = new MessageEmbed().setTitle('Choose a playlist to add the song to. You can choose multiple playlists.');
+            const embed = new MessageEmbed().setTitle('Choose a playlist to add the song to. May take a bit to add the song.');
             const filter = (user) => {
                 return user.user.id === message.author.id;
             }
             const collector = message.channel.createMessageComponentCollector({
                 filter, 
                 max: 1,
-                time: 15000
                 });
     
             collector.on('collect', async(collected) =>{

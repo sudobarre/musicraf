@@ -77,7 +77,7 @@ module.exports = (client, Discord, interaction) => {
           if(idx >= user.playlists.length) return; //in case someone else chosoes it, temporary mesaure lol.
           plist = user.playlists[idx];
           plist.songs.unshift([song]);
-          user.save();
+          await user.save();
           return;
         default:
           break;

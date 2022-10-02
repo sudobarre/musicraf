@@ -130,7 +130,8 @@ module.exports = {
             // Collect button interactions (when a user clicks a button),
             // but only when the button as clicked by the original message author
             const collector = embedMessage.createMessageComponentCollector({
-                filter: ({user}) => user.id === author.id
+                filter: ({user}) => user.id === author.id,
+                time: 30000,
             })
             
             //doesnt show the next page
