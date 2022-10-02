@@ -12,7 +12,6 @@ module.exports = (client, Discord, message) => {
     client.commands.get(cmd) ||
     client.commands.find((a) => a.aliases && a.aliases.includes(cmd));
   try {
-    //Before bottlenecking with the db here check if the user is in the client's cache. If so, then i think it's already stored in the db.
     const flagint = 0; //ugly way to work with interactions in some commands.
     command.execute(client, message, cmd, args, Discord, flagint);
   } catch (err) {
