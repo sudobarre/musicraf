@@ -224,8 +224,8 @@ const video_player = async (guild, song, flagint, cmd) => {
                 case forwardId:
                     skip_song(interaction, server_queue, 1);
                     interaction.message.delete();
-                collector.stop();
-                break;
+                    collector.stop();
+                    break;
                 case queueId:
                     print_queue(interaction, server_queue, 1);
                     break;
