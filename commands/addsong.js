@@ -57,7 +57,7 @@ module.exports = {
                         ephemeral: true, //CHECK INTERACTIONCREATE
                         })))]),         
                 );
-            const embed = new MessageEmbed().setTitle('Choose a playlist to add the song to. May take a bit to add the song.');
+            const embed = new MessageEmbed().setTitle('Choose a playlist to add the song to');
             const filter = (user) => {
                 return user.user.id === message.author.id;
             }
