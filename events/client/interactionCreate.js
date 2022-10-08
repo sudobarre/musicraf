@@ -29,7 +29,7 @@ async function playSongs(index, interaction, client, Discord){//index = {id, ind
 
 
 module.exports = (client, Discord, interaction) => {
-  async function handleCommand() {
+  async function handleCommand() { //switch to switch lol
     if (interaction.isCommand()) {
       return;
     } else if (interaction.isSelectMenu()){
