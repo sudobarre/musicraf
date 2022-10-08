@@ -144,7 +144,7 @@ const video_player = async (guild, song, flagint, cmd) => {
     });
     
     //maybe do a back button where it just plays the same song again with video_finder without shifting the queue.
-    
+    //let embedMessage;
     if(!song) {
         player.stop(); 
         connection.destroy(); 
