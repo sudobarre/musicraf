@@ -1,2 +1,2 @@
 # MusicRaf
-A music discord bot using discord.js api and MongoDB. 
+A music discord bot using discord.js api and mongoose.
